@@ -37,18 +37,10 @@ ext {
     offlineCompile = new File("$buildDir/output/lib")
 }
 
-configurations {
-    exporters
-}
-
 dependencies {
     if (speed) {
         implementation fileTree(dir: offlineCompile, include: '*.jar')
     } else {
-        exporters ("com.newrelic.telemetry:opentelemetry-exporters-newrelic-auto:0.8.1") {
-            transitive = false
-        }
-
         implementation "com.google.api.grpc:proto-google-common-protos:1.17.0",
                 "io.opentelemetry:opentelemetry-api:${openTelemetryVersion}",
                 "io.opentelemetry:opentelemetry-extension-auto-annotations:${openTelemetryVersion}",
@@ -70,11 +62,6 @@ dependencies {
                 "io.netty:netty-tcnative-boringssl-static:2.0.26.Final"
 
     }
-}
-
-task copyExporters(type: Copy) {
-    from configurations.exporters
-    into "$buildDir/exporters"
 }
 
 protobuf {

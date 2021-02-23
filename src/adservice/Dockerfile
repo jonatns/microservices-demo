@@ -9,23 +9,18 @@ RUN ./gradlew downloadRepos
 
 COPY . .
 RUN chmod +x gradlew
-RUN ./gradlew --refresh-dependencies installDist copyExporters && mkdir -p auto-agent && mv build/exporters/* ./auto-agent/
+RUN ./gradlew --refresh-dependencies installDist && mkdir -p auto-agent
 
 FROM adoptopenjdk/openjdk11
-
-ARG NEW_RELIC_API_KEY
-ARG NEW_RELIC_TRACE_URL
-ARG NEW_RELIC_METRIC_URL
 
 ARG USE_ZIPKIN_EXPORTER=false
 ENV USE_ZIPKIN_EXPORTER=${USE_ZIPKIN_EXPORTER}
 
-## These 4 are used by the auto-instrumentation configuration:
-ENV OTEL_EXPORTER_NEWRELIC_API_KEY=${NEW_RELIC_API_KEY}
-ENV OTEL_EXPORTER_NEWRELIC_TRACE_URI_OVERRIDE=${NEW_RELIC_TRACE_URL}
-ENV OTEL_EXPORTER_NEWRELIC_METRIC_URI_OVERRIDE=${NEW_RELIC_METRIC_URL}
-## TODO: make these env vars injectable somehow
-ENV OTEL_EXPORTER_JAR=auto-agent/opentelemetry-exporters-newrelic-auto-0.8.1.jar
+ARG OTEL_EXPORTER_OTLP_ENDPOINT
+ENV OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+
+ARG OTEL_EXPORTER_OTLP_HEADERS
+ENV OTEL_EXPORTER_OTLP_HEADERS=${OTEL_EXPORTER_OTLP_HEADERS}
 
 # Download Stackdriver Profiler Java agent
 RUN apt-get -y update && apt-get install -qqy \
